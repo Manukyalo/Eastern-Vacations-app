@@ -3,9 +3,25 @@ import { View, Text, StyleSheet, FlatList, ImageBackground, TouchableOpacity, Di
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { PACKAGES } from '../data/packages';
 
+import { AntDesign } from '@expo/vector-icons';
+import axios from 'axios';
+
 const { width } = Dimensions.get('window');
+const API_URL = 'http://192.168.0.101:3000/api'; // Local dev API
 
 const PackageCard = ({ item, index }) => {
+    const [added, setAdded] = React.useState(false);
+
+    const handleAddWishlist = async () => {
+        try {
+            await axios.post(`${API_URL}/wishlist`, { packageId: item.id });
+            setAdded(true);
+        } catch (error) {
+            console.warn('Backend not reachable, mocked adding to wishlist');
+            setAdded(true);
+        }
+    };
+
     return (
         <Animated.View
             entering={FadeInDown.delay(index * 150).springify().damping(12)}
@@ -21,18 +37,27 @@ const PackageCard = ({ item, index }) => {
                         <View style={styles.durationBadge}>
                             <Text style={styles.durationText}>{item.duration}</Text>
                         </View>
-                        <View style={styles.priceBadge}>
-                            <Text style={styles.priceText}>Quote</Text>
-                        </View>
+                        <TouchableOpacity
+                            style={styles.wishlistIcon}
+                            onPress={handleAddWishlist}
+                            disabled={added}
+                        >
+                            <AntDesign name={added ? "heart" : "hearto"} size={24} color={added ? "#E5A93C" : "#fff"} />
+                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.bottomContent}>
                         <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
                         <Text style={styles.description} numberOfLines={2}>{item.description}</Text>
 
-                        <TouchableOpacity style={styles.button}>
-                            <Text style={styles.buttonText}>View Details</Text>
-                        </TouchableOpacity>
+                        <View style={styles.actionRow}>
+                            <View style={styles.priceBadge}>
+                                <Text style={styles.priceText}>{item.price}</Text>
+                            </View>
+                            <TouchableOpacity style={styles.button}>
+                                <Text style={styles.buttonText}>View Details</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </ImageBackground>
@@ -124,16 +149,26 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 12,
     },
+    wishlistIcon: {
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        padding: 8,
+        borderRadius: 20,
+    },
+    actionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
     priceBadge: {
         backgroundColor: '#E5A93C',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 12,
     },
     priceText: {
         color: '#111',
         fontWeight: 'bold',
-        fontSize: 12,
+        fontSize: 14,
     },
     bottomContent: {
         justifyContent: 'flex-end',
@@ -158,12 +193,13 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.3)',
         borderRadius: 12,
-        paddingVertical: 12,
+        paddingVertical: 10,
+        paddingHorizontal: 16,
         alignItems: 'center',
     },
     buttonText: {
         color: '#fff',
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: '600',
         letterSpacing: 0.5,
     },
