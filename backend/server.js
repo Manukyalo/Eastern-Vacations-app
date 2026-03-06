@@ -72,6 +72,52 @@ app.post('/api/subscribe/mpesa', (req, res) => {
     }, 2000);
 });
 
+// --- AI RECOMMENDATIONS ENDPOINT ---
+app.post('/api/recommendations', (req, res) => {
+    const { budget, interest, season } = req.body;
+
+    // Very basic mock AI matching engine returning static results
+    // In production, this would query OpenAI or an ML model against the DB.
+    setTimeout(() => {
+        const mockMatches = [
+            {
+                id: '1',
+                title: 'Masai Mara Great Migration Premium Safari',
+                price: 3600,
+                duration: '6 Days',
+                description: 'Witness the greatest wildlife show on earth from the comfort of luxury tented camps.',
+                image_url: 'https://images.unsplash.com/photo-1547471080-7fc2caa6f17f?q=80&w=1000&auto=format&fit=crop'
+            },
+            {
+                id: '2',
+                title: 'Serengeti & Ngorongoro Adventure',
+                price: 2800,
+                duration: '5 Days',
+                description: 'Explore the vast plains of Serengeti and the dense wildlife inside the crater.',
+                image_url: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?q=80&w=1000&auto=format&fit=crop'
+            },
+            {
+                id: '3',
+                title: 'Tsavo East Elephant Trek',
+                price: 1500,
+                duration: '3 Days',
+                description: 'Get up close with the famous red elephants of Tsavo East.',
+                image_url: 'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?q=80&w=1000&auto=format&fit=crop'
+            }
+        ];
+
+        // Slight modifications based on 'budget' to simulate intelligence
+        if (budget === 'value') {
+            mockMatches[0].price = 1200;
+        }
+
+        res.json({
+            success: true,
+            recommendations: mockMatches
+        });
+    }, 2500); // Simulate ML processing time
+});
+
 // Start Server
 app.listen(PORT, () => {
     console.log(`Eastern Vacations API running on http://localhost:${PORT}`);

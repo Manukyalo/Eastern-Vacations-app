@@ -9,6 +9,17 @@ import AuthScreen from './screens/AuthScreen';
 import PackagesScreen from './screens/PackagesScreen';
 import WishlistScreen from './screens/WishlistScreen';
 import SubscriptionScreen from './screens/SubscriptionScreen';
+import ItineraryBuilderScreen from './screens/ItineraryBuilderScreen';
+import PackageDetailsScreen from './screens/PackageDetailsScreen';
+import GroupBookingScreen from './screens/GroupBookingScreen';
+import AIPlannerScreen from './screens/AIPlannerScreen';
+import WildlifeCalendarScreen from './screens/WildlifeCalendarScreen';
+import OfflineGuidesScreen from './screens/OfflineGuidesScreen';
+import SettingsScreen from './screens/SettingsScreen';
+import ARScannerScreen from './screens/ARScannerScreen';
+import { CurrencyProvider } from './context/CurrencyContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -57,25 +68,70 @@ function MainTabs() {
           )
         }}
       />
+      <Tab.Screen
+        name="Planner"
+        component={ItineraryBuilderScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="map" size={size} color={color} />
+          )
+        }}
+      />
+      <Tab.Screen
+        name="AI"
+        component={AIPlannerScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="cpu" size={size} color={color} />
+          )
+        }}
+      />
+      <Tab.Screen
+        name="Guides"
+        component={OfflineGuidesScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="download-cloud" size={size} color={color} />
+          )
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="settings" size={size} color={color} />
+          )
+        }}
+      />
     </Tab.Navigator>
   );
 }
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <StatusBar style="light" />
-      <Stack.Navigator
-        initialRouteName="Auth"
-        screenOptions={{
-          headerShown: false, // hide header for all screens to keep the custom premium UI
-          animation: 'fade', // fluid fade animation
-        }}
-      >
-        <Stack.Screen name="Auth" component={AuthScreen} />
-        {/* We map "Packages" to the MainTabs so old navigation handles still work seamlessly */}
-        <Stack.Screen name="Packages" component={MainTabs} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ThemeProvider>
+      <LanguageProvider>
+        <CurrencyProvider>
+          <NavigationContainer>
+            <StatusBar style="light" />
+            <Stack.Navigator
+              initialRouteName="Auth"
+              screenOptions={{
+                headerShown: false,
+                animation: 'fade',
+              }}
+            >
+              <Stack.Screen name="Auth" component={AuthScreen} />
+              <Stack.Screen name="Packages" component={MainTabs} />
+              <Stack.Screen name="PackageDetails" component={PackageDetailsScreen} />
+              <Stack.Screen name="GroupBooking" component={GroupBookingScreen} />
+              <Stack.Screen name="WildlifeCalendar" component={WildlifeCalendarScreen} />
+              <Stack.Screen name="ARScanner" component={ARScannerScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </CurrencyProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }

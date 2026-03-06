@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, ImageBackground, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, ImageBackground, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing, interpolate, runOnJS } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
@@ -65,8 +66,11 @@ const AuthScreen = ({ navigation }) => {
           style={styles.container}
         >
           <View style={styles.header}>
-            <Text style={styles.title}>Eastern Vacations</Text>
-            <Text style={styles.subtitle}>Discover the Beauty of Kenya</Text>
+            <Image
+              source={require('../assets/eastern-vacations-kenya-logo-rounded.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
           </View>
 
           <View style={styles.formContainer}>
@@ -138,20 +142,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
   },
-  title: {
-    fontSize: 38,
-    fontWeight: 'bold',
-    color: '#fff',
-    letterSpacing: 1.5,
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#f0f0f0',
-    marginTop: 8,
-    letterSpacing: 0.5,
+  logo: {
+    width: 250,
+    height: 120,
+    marginBottom: 10,
   },
   formContainer: {
     height: 420,

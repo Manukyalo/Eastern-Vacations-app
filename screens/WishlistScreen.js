@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, ImageBackground, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import axios from 'axios';
 import { PACKAGES } from '../data/packages'; // Local fallback data
+import { useCurrency } from '../context/CurrencyContext';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
+import { useTheme } from '../context/ThemeContext';
+
+import { API_URL } from '../utils/api';
 
 const { width } = Dimensions.get('window');
-const API_URL = 'http://192.168.0.101:3000/api'; // Assuming local dev setup matching network request
 
-const WishlistCard = ({ item, index, onRemove }) => {
+const WishlistCard = ({ item, index, onRemove, formatPrice }) => {
+    const navigation = useNavigation();
+
     return (
         <Animated.View
             entering={FadeInDown.delay(index * 150).springify().damping(12)}
@@ -28,9 +35,17 @@ const WishlistCard = ({ item, index, onRemove }) => {
 
                     <View style={styles.bottomContent}>
                         <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
-                        <View style={styles.detailsRow}>
-                            <Text style={styles.durationText}>{item.duration}</Text>
-                            <Text style={styles.priceText}>{item.price}</Text>
+                        <Text style={styles.durationText}>{item.duration}</Text>
+                        <View style={styles.actionRow}>
+                            <View style={styles.priceBadge}>
+                                <Text style={styles.priceText}>{formatPrice(item.price)}</Text>
+                            </View>
+                            <TouchableOpacity
+                                style={styles.button}
+                                onPress={() => navigation.navigate('PackageDetails', { item })}
+                            >
+                                <Text style={styles.buttonText}>View Details</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
@@ -42,6 +57,9 @@ const WishlistCard = ({ item, index, onRemove }) => {
 export default function WishlistScreen() {
     const [wishlistIds, setWishlistIds] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { formatPrice } = useCurrency();
+    const navigation = useNavigation();
+    const { colors } = useTheme();
 
     const fetchWishlist = async () => {
         try {
@@ -55,9 +73,11 @@ export default function WishlistScreen() {
         }
     };
 
-    useEffect(() => {
-        fetchWishlist();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            fetchWishlist();
+        }, [])
+    );
 
     const removeFromWishlist = async (id) => {
         try {
@@ -73,10 +93,10 @@ export default function WishlistScreen() {
     const wishlistPackages = PACKAGES.filter(pkg => wishlistIds.includes(pkg.id));
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>My Wishlist</Text>
-                <Text style={styles.headerSubtitle}>Your saved dream safaris</Text>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <View style={[styles.header, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.headerTitle, { color: colors.text }]}>My Wishlist</Text>
+                <Text style={[styles.headerSubtitle, { color: colors.primary }]}>Your saved dream safaris</Text>
             </View>
 
             {loading ? (
@@ -85,20 +105,27 @@ export default function WishlistScreen() {
                 </View>
             ) : wishlistPackages.length === 0 ? (
                 <View style={styles.centerContainer}>
-                    <Text style={styles.emptyText}>Your wishlist is empty.</Text>
-                    <Text style={styles.emptySubText}>Explore packages to add them here!</Text>
+                    <Text style={[styles.emptyText, { color: colors.text }]}>Your wishlist is empty.</Text>
+                    <Text style={[styles.emptySubText, { color: colors.textSecondary }]}>Explore packages to add them here!</Text>
                 </View>
             ) : (
                 <FlatList
                     data={wishlistPackages}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item, index }) => (
-                        <WishlistCard item={item} index={index} onRemove={removeFromWishlist} />
+                        <WishlistCard item={item} index={index} onRemove={removeFromWishlist} formatPrice={formatPrice} />
                     )}
                     contentContainerStyle={styles.listContainer}
                     showsVerticalScrollIndicator={false}
                 />
             )}
+
+            <TouchableOpacity
+                style={styles.fab}
+                onPress={() => navigation.navigate('Discover')}
+            >
+                <Feather name="plus" size={32} color="#111" />
+            </TouchableOpacity>
         </View>
     );
 }
@@ -197,14 +224,58 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 4,
     },
+    actionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 8,
+    },
     durationText: {
         color: '#ddd',
         fontSize: 12,
         fontWeight: '600',
+        marginBottom: 8,
+    },
+    priceBadge: {
+        backgroundColor: '#E5A93C',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 12,
     },
     priceText: {
-        color: '#E5A93C',
-        fontSize: 14,
+        color: '#111',
         fontWeight: 'bold',
+        fontSize: 14,
+    },
+    button: {
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.3)',
+        borderRadius: 12,
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '600',
+        letterSpacing: 0.5,
+    },
+    fab: {
+        position: 'absolute',
+        bottom: 30,
+        right: 30,
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        backgroundColor: '#E5A93C',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#E5A93C',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.5,
+        shadowRadius: 10,
+        elevation: 10,
     },
 });

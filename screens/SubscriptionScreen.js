@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, Dimensions, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
+import { useCurrency } from '../context/CurrencyContext';
+import { useTheme } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
-const API_URL = 'http://192.168.0.101:3000/api'; // Local dev API
+import { API_URL } from '../utils/api';
 
 export default function SubscriptionScreen() {
     const [loading, setLoading] = useState(false);
+    const { formatPrice } = useCurrency();
+    const { colors } = useTheme();
 
     const handleSubscribe = async (provider, tier) => {
         setLoading(true);
@@ -30,47 +34,46 @@ export default function SubscriptionScreen() {
     };
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+        <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Premium Membership</Text>
-                <Text style={styles.headerSubtitle}>Unlock Exclusive Safari Perks</Text>
+                <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>Unlock Exclusive Safari Perks</Text>
             </View>
 
-            <View style={styles.benefitsContainer}>
+            <View style={[styles.benefitsContainer, { backgroundColor: colors.iconBg, borderColor: colors.border }]}>
                 <View style={styles.benefitRow}>
                     <Text style={styles.bullet}>✓</Text>
-                    <Text style={styles.benefitText}>Priority booking on all tour packages</Text>
+                    <Text style={[styles.benefitText, { color: colors.text }]}>Priority booking on all tour packages</Text>
                 </View>
                 <View style={styles.benefitRow}>
                     <Text style={styles.bullet}>✓</Text>
-                    <Text style={styles.benefitText}>Exclusive discounts (up to 15% off)</Text>
+                    <Text style={[styles.benefitText, { color: colors.text }]}>Exclusive discounts (up to 15% off)</Text>
                 </View>
                 <View style={styles.benefitRow}>
                     <Text style={styles.bullet}>✓</Text>
-                    <Text style={styles.benefitText}>Dedicated 24/7 travel concierge</Text>
+                    <Text style={[styles.benefitText, { color: colors.text }]}>Dedicated 24/7 travel concierge</Text>
                 </View>
                 <View style={styles.benefitRow}>
                     <Text style={styles.bullet}>✓</Text>
-                    <Text style={styles.benefitText}>Free airport transfers in Nairobi & Mombasa</Text>
+                    <Text style={[styles.benefitText, { color: colors.text }]}>Free airport transfers in Nairobi & Mombasa</Text>
                 </View>
             </View>
 
-            <View style={styles.pricingCard}>
-                <Text style={styles.tierName}>Gold Tier</Text>
+            <View style={[styles.pricingCard, { backgroundColor: colors.card }]}>
+                <Text style={[styles.tierName, { color: colors.text }]}>Gold Tier</Text>
                 <View style={styles.priceRow}>
-                    <Text style={styles.currency}>KES </Text>
-                    <Text style={styles.price}>5,000</Text>
-                    <Text style={styles.duration}>/ year</Text>
+                    <Text style={[styles.price, { color: colors.text }]}>{formatPrice(36.90)}</Text>
+                    <Text style={[styles.duration, { color: colors.textSecondary }]}>/ year</Text>
                 </View>
 
                 {loading ? (
                     <View style={styles.loaderContainer}>
                         <ActivityIndicator size="large" color="#E5A93C" />
-                        <Text style={styles.loaderText}>Processing Payment...</Text>
+                        <Text style={[styles.loaderText, { color: colors.text }]}>Processing Payment...</Text>
                     </View>
                 ) : (
                     <View style={styles.paymentSection}>
-                        <Text style={styles.paymentHeader}>Select Payment Method:</Text>
+                        <Text style={[styles.paymentHeader, { color: colors.textSecondary }]}>Select Payment Method:</Text>
 
                         <TouchableOpacity
                             style={[styles.paymentButton, styles.mpesaButton]}

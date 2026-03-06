@@ -1,26 +1,19 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, ImageBackground, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, FlatList, ImageBackground, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { PACKAGES } from '../data/packages';
+import { useCurrency } from '../context/CurrencyContext';
+import { useTheme } from '../context/ThemeContext';
 
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Feather } from '@expo/vector-icons';
 import axios from 'axios';
+import { API_URL } from '../utils/api';
 
 const { width } = Dimensions.get('window');
-const API_URL = 'http://192.168.0.101:3000/api'; // Local dev API
 
-const PackageCard = ({ item, index }) => {
-    const [added, setAdded] = React.useState(false);
-
-    const handleAddWishlist = async () => {
-        try {
-            await axios.post(`${API_URL}/wishlist`, { packageId: item.id });
-            setAdded(true);
-        } catch (error) {
-            console.warn('Backend not reachable, mocked adding to wishlist');
-            setAdded(true);
-        }
-    };
+const PackageCard = ({ item, index, isAdded, onToggleWishlist, formatPrice }) => {
+    const navigation = useNavigation();
 
     return (
         <Animated.View
@@ -39,10 +32,9 @@ const PackageCard = ({ item, index }) => {
                         </View>
                         <TouchableOpacity
                             style={styles.wishlistIcon}
-                            onPress={handleAddWishlist}
-                            disabled={added}
+                            onPress={() => onToggleWishlist(item.id, isAdded)}
                         >
-                            <AntDesign name={added ? "heart" : "hearto"} size={24} color={added ? "#E5A93C" : "#fff"} />
+                            <AntDesign name={isAdded ? "heart" : "hearto"} size={24} color={isAdded ? "#E5A93C" : "#fff"} />
                         </TouchableOpacity>
                     </View>
 
@@ -52,9 +44,12 @@ const PackageCard = ({ item, index }) => {
 
                         <View style={styles.actionRow}>
                             <View style={styles.priceBadge}>
-                                <Text style={styles.priceText}>{item.price}</Text>
+                                <Text style={styles.priceText}>{formatPrice(item.price)}</Text>
                             </View>
-                            <TouchableOpacity style={styles.button}>
+                            <TouchableOpacity
+                                style={styles.button}
+                                onPress={() => navigation.navigate('PackageDetails', { item })}
+                            >
                                 <Text style={styles.buttonText}>View Details</Text>
                             </TouchableOpacity>
                         </View>
@@ -65,18 +60,101 @@ const PackageCard = ({ item, index }) => {
     );
 };
 
-export default function PackagesScreen() {
+export default function PackagesScreen({ navigation }) {
+    const [wishlistIds, setWishlistIds] = useState([]);
+    const { currency, setCurrency, availableCurrencies, formatPrice } = useCurrency();
+    const { colors } = useTheme();
+
+    const fetchWishlist = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/wishlist`);
+            setWishlistIds(response.data.wishlist || []);
+        } catch (error) {
+            console.warn('Backend not running, ignored fetching wishlist', error.message);
+        }
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchWishlist();
+        }, [])
+    );
+
+    const toggleWishlist = async (id, currentlyAdded) => {
+        // Optimistic update for immediate feedback
+        if (currentlyAdded) {
+            setWishlistIds(prev => prev.filter(pkgId => pkgId !== id));
+            try {
+                await axios.delete(`${API_URL}/wishlist/${id}`);
+            } catch (err) {
+                console.warn('Delete failed, reverting UI', err);
+                setWishlistIds(prev => [...prev, id]);
+            }
+        } else {
+            setWishlistIds(prev => [...prev, id]);
+            try {
+                await axios.post(`${API_URL}/wishlist`, { packageId: id });
+            } catch (err) {
+                console.warn('Add failed, reverting UI', err);
+                setWishlistIds(prev => prev.filter(pkgId => pkgId !== id));
+            }
+        }
+    };
+
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Kenya Tours</Text>
-                <Text style={styles.headerSubtitle}>Exclusive safari experiences</Text>
+                <View style={styles.headerTop}>
+                    <View>
+                        <Text style={[styles.headerTitle, { color: colors.text }]}>Kenya Tours</Text>
+                        <Text style={[styles.headerSubtitle, { color: colors.primary }]}>Exclusive safari experiences</Text>
+                    </View>
+                    <View style={styles.headerActionRow}>
+                        <TouchableOpacity
+                            style={[styles.actionButton, { backgroundColor: colors.iconBg, borderColor: colors.border }]}
+                            onPress={() => navigation.navigate('ARScanner')}
+                        >
+                            <Feather name="aperture" size={24} color={colors.primary} />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.actionButton, { backgroundColor: colors.iconBg, borderColor: colors.border }]}
+                            onPress={() => navigation.navigate('WildlifeCalendar')}
+                        >
+                            <Feather name="calendar" size={24} color={colors.primary} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.currencyScroll}>
+                    {availableCurrencies.map(curr => (
+                        <TouchableOpacity
+                            key={curr}
+                            style={[
+                                styles.currencyPill,
+                                { backgroundColor: colors.iconBg, borderColor: colors.border },
+                                currency === curr && styles.currencyPillActive
+                            ]}
+                            onPress={() => setCurrency(curr)}
+                        >
+                            <Text style={[styles.currencyText, currency === curr && styles.currencyTextActive]}>
+                                {curr}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
             </View>
 
             <FlatList
                 data={PACKAGES}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item, index }) => <PackageCard item={item} index={index} />}
+                renderItem={({ item, index }) => (
+                    <PackageCard
+                        item={item}
+                        index={index}
+                        isAdded={wishlistIds.includes(item.id)}
+                        onToggleWishlist={toggleWishlist}
+                        formatPrice={formatPrice}
+                    />
+                )}
                 contentContainerStyle={styles.listContainer}
                 showsVerticalScrollIndicator={false}
             />
@@ -107,6 +185,49 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         textTransform: 'uppercase',
         letterSpacing: 1.5,
+    },
+    headerTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
+    headerActionRow: {
+        flexDirection: 'row',
+    },
+    actionButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+        marginLeft: 10,
+    },
+    currencyScroll: {
+        marginTop: 16,
+    },
+    currencyPill: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        marginRight: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    currencyPillActive: {
+        backgroundColor: 'rgba(229, 169, 60, 0.2)',
+        borderColor: '#E5A93C',
+    },
+    currencyText: {
+        color: '#ccc',
+        fontSize: 12,
+        fontWeight: 'bold',
+    },
+    currencyTextActive: {
+        color: '#E5A93C',
     },
     listContainer: {
         padding: 20,
