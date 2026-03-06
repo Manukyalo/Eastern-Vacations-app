@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 export default function SettingsScreen() {
     const { isDarkMode, toggleTheme, colors } = useTheme();
     const { language, changeLanguage, t } = useLanguage();
+    const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
 
     const languages = [
         { code: 'en', name: 'English' },
@@ -85,7 +86,12 @@ export default function SettingsScreen() {
                             <Text style={[styles.settingDesc, { color: colors.textSecondary }]}>Manage safari alerts</Text>
                         </View>
                     </View>
-                    <Feather name="chevron-right" size={20} color={colors.textSecondary} />
+                    <Switch
+                        value={notificationsEnabled}
+                        onValueChange={setNotificationsEnabled}
+                        trackColor={{ false: '#767577', true: colors.primary }}
+                        thumbColor={notificationsEnabled ? '#fff' : '#f4f3f4'}
+                    />
                 </View>
 
                 <TouchableOpacity

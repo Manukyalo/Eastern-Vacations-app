@@ -12,6 +12,8 @@ app.use(bodyParser.json());
 // In-memory mock database
 let userWishlist = [];
 let userSubscription = { status: 'free', tier: 'none' }; // 'free' | 'premium'
+// Internal storage for reservations queue
+let reservationQueue = [];
 
 // --- WISHLIST ENDPOINTS ---
 
@@ -118,7 +120,39 @@ app.post('/api/recommendations', (req, res) => {
     }, 2500); // Simulate ML processing time
 });
 
+// --- RESERVATION DASHBOARD ENDPOINTS ---
+
+app.post('/api/reservations/queue', (req, res) => {
+    const { name, email, preferences, packageInterest } = req.body;
+    const newRequest = {
+        id: Date.now().toString(),
+        name: name || 'Guest User',
+        email: email || 'guest@example.com',
+        preferences: preferences || 'Flexible',
+        packageInterest: packageInterest || 'General Inquiry',
+        status: 'Waiting', // Waiting, Claimed, Completed
+        timestamp: new Date().toISOString()
+    };
+    reservationQueue.push(newRequest);
+    console.log('[Reservations] New priority waitlist entry added:', newRequest.id);
+
+    res.json({ success: true, message: 'Added to priority waiting list', request: newRequest });
+});
+
+app.get('/api/reservations/queue', (req, res) => {
+    res.json({ success: true, queue: reservationQueue });
+});
+
+app.put('/api/reservations/queue/:id/claim', (req, res) => {
+    const { id } = req.params;
+    const reqItem = reservationQueue.find(item => item.id === id);
+    if (!reqItem) return res.status(404).json({ success: false, error: 'Not found' });
+
+    reqItem.status = 'Claimed';
+    res.json({ success: true, request: reqItem });
+});
+
 // Start Server
-app.listen(PORT, () => {
-    console.log(`Eastern Vacations API running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Eastern Vacations API running on http://0.0.0.0:${PORT}`);
 });
