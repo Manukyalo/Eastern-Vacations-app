@@ -122,6 +122,64 @@ app.post('/api/recommendations', (req, res) => {
 
 // --- RESERVATION DASHBOARD ENDPOINTS ---
 
+let adminQueue = [];
+
+// App booking hits Admin first
+app.post('/api/admin/queue', (req, res) => {
+    const { name, email, preferences, packageInterest, totalPrice } = req.body;
+    const newRequest = {
+        id: Date.now().toString(),
+        name: name || 'Guest User',
+        email: email || 'guest@example.com',
+        preferences: preferences || 'Flexible',
+        packageInterest: packageInterest || 'General Inquiry',
+        totalPrice: totalPrice || 'Pending',
+        status: 'Waiting',
+        timestamp: new Date().toISOString()
+    };
+    adminQueue.push(newRequest);
+    console.log('[Admin] New priority waitlist entry added:', newRequest.id);
+
+    res.json({ success: true, message: 'Added to Admin priority waiting list', request: newRequest });
+});
+
+app.get('/api/admin/queue', (req, res) => {
+    res.json({ success: true, queue: adminQueue });
+});
+
+// Admin approves: Appends driver & vehicle, hides email/price, sends to Reservations
+app.put('/api/admin/queue/:id/approve', (req, res) => {
+    const { id } = req.params;
+    const { driverName, vehicleReg } = req.body;
+
+    const index = adminQueue.findIndex(item => item.id === id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Not found in Admin Queue' });
+
+    const reqItem = adminQueue[index];
+    adminQueue.splice(index, 1); // Remove from Admin
+
+    // Sanitize for Reservation Team
+    const sanitizedReservation = {
+        id: reqItem.id,
+        name: reqItem.name,
+        // email is REMOVED for privacy
+        // totalPrice is REMOVED
+        preferences: reqItem.preferences,
+        packageInterest: reqItem.packageInterest,
+        driverName: driverName || 'Pending',
+        vehicleReg: vehicleReg || 'Pending',
+        status: 'Assigned',
+        timestamp: reqItem.timestamp,
+        approvedAt: new Date().toISOString()
+    };
+
+    reservationQueue.push(sanitizedReservation);
+    console.log('[Reservations] Booking Approved & Transferred:', reqItem.id);
+
+    res.json({ success: true, message: 'Forwarded to Reservations', request: sanitizedReservation });
+});
+
+// Original endpoint for chatbot fallback
 app.post('/api/reservations/queue', (req, res) => {
     const { name, email, preferences, packageInterest } = req.body;
     const newRequest = {
@@ -130,13 +188,14 @@ app.post('/api/reservations/queue', (req, res) => {
         email: email || 'guest@example.com',
         preferences: preferences || 'Flexible',
         packageInterest: packageInterest || 'General Inquiry',
-        status: 'Waiting', // Waiting, Claimed, Completed
+        totalPrice: 'N/A (Chat)',
+        status: 'Waiting',
         timestamp: new Date().toISOString()
     };
-    reservationQueue.push(newRequest);
-    console.log('[Reservations] New priority waitlist entry added:', newRequest.id);
+    // Chatbot goes straight to admin too so they can price it
+    adminQueue.push(newRequest);
 
-    res.json({ success: true, message: 'Added to priority waiting list', request: newRequest });
+    res.json({ success: true, message: 'Added to Admin priority waiting list', request: newRequest });
 });
 
 app.get('/api/reservations/queue', (req, res) => {
@@ -148,7 +207,7 @@ app.put('/api/reservations/queue/:id/claim', (req, res) => {
     const reqItem = reservationQueue.find(item => item.id === id);
     if (!reqItem) return res.status(404).json({ success: false, error: 'Not found' });
 
-    reqItem.status = 'Claimed';
+    reqItem.status = 'Agent Serving';
     res.json({ success: true, request: reqItem });
 });
 

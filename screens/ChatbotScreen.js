@@ -8,7 +8,7 @@ import { API_URL } from '../utils/api';
 export default function ChatbotScreen({ navigation }) {
     const { colors } = useTheme();
     const [messages, setMessages] = useState([
-        { id: 1, text: "Jambo! I'm your AI Safari Guide. Tell me, what kind of experience are you looking for? (e.g., family wildlife, luxury honeymoon, budget camping)", sender: 'bot' }
+        { id: 1, text: "Jambo! I'm Simba AI, your personal Safari Guide. Tell me, what kind of experience are you looking for? (e.g., family wildlife, luxury honeymoon, budget camping)", sender: 'bot' }
     ]);
     const [inputText, setInputText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -95,7 +95,7 @@ export default function ChatbotScreen({ navigation }) {
                 </TouchableOpacity>
                 <View style={styles.headerInfo}>
                     <MaterialCommunityIcons name="robot-outline" size={24} color={colors.primary} style={{ marginRight: 8 }} />
-                    <Text style={[styles.headerTitle, { color: colors.text }]}>AI Safari Guide</Text>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>Simba AI</Text>
                 </View>
                 <View style={{ width: 44 }} />
             </View>

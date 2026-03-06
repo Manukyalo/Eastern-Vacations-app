@@ -79,7 +79,10 @@ export default function PackageDetailsScreen({ route, navigation }) {
                 )}
 
                 <View style={styles.actionContainer}>
-                    <TouchableOpacity style={[styles.soloButton, { borderColor: colors.border }]}>
+                    <TouchableOpacity
+                        style={[styles.soloButton, { borderColor: colors.border }]}
+                        onPress={() => navigation.navigate('Upsell', { item })}
+                    >
                         <Text style={[styles.soloButtonText, { color: colors.text }]}>Book Solo</Text>
                     </TouchableOpacity>
 

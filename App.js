@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { AntDesign, Feather } from '@expo/vector-icons';
+import { AntDesign, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import AuthScreen from './screens/AuthScreen';
 import PackagesScreen from './screens/PackagesScreen';
@@ -19,15 +19,18 @@ import OfflineGuidesScreen from './screens/OfflineGuidesScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import ARScannerScreen from './screens/ARScannerScreen';
 import ChatbotScreen from './screens/ChatbotScreen';
+import UpsellScreen from './screens/UpsellScreen';
 import FloatingChatIcon from './components/FloatingChatIcon';
 import { CurrencyProvider } from './context/CurrencyContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { LanguageProvider } from './context/LanguageContext';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
+  const { t } = useLanguage();
+
   return (
     <View style={{ flex: 1 }}>
       <Tab.Navigator
@@ -49,6 +52,7 @@ function MainTabs() {
           name="Discover"
           component={PackagesScreen}
           options={{
+            title: t('discover') || 'Discover',
             tabBarIcon: ({ color, size }) => (
               <Feather name="compass" size={size} color={color} />
             )
@@ -58,6 +62,7 @@ function MainTabs() {
           name="Wishlist"
           component={WishlistScreen}
           options={{
+            title: t('wishlist') || 'Wishlist',
             tabBarIcon: ({ color, size }) => (
               <AntDesign name="hearto" size={size} color={color} />
             )
@@ -67,6 +72,7 @@ function MainTabs() {
           name="Premium"
           component={SubscriptionScreen}
           options={{
+            title: t('premium') || 'Premium',
             tabBarIcon: ({ color, size }) => (
               <Feather name="star" size={size} color={color} />
             )
@@ -76,6 +82,7 @@ function MainTabs() {
           name="Planner"
           component={ItineraryBuilderScreen}
           options={{
+            title: t('planner') || 'Planner',
             tabBarIcon: ({ color, size }) => (
               <Feather name="map" size={size} color={color} />
             )
@@ -86,7 +93,7 @@ function MainTabs() {
           component={AIPlannerScreen}
           options={{
             tabBarIcon: ({ color, size }) => (
-              <Feather name="cpu" size={size} color={color} />
+              <MaterialCommunityIcons name="robot-outline" size={size} color={color} />
             )
           }}
         />
@@ -103,6 +110,7 @@ function MainTabs() {
           name="Settings"
           component={SettingsScreen}
           options={{
+            title: t('settings') || 'Settings',
             tabBarIcon: ({ color, size }) => (
               <Feather name="settings" size={size} color={color} />
             )
@@ -135,6 +143,7 @@ export default function App() {
               <Stack.Screen name="WildlifeCalendar" component={WildlifeCalendarScreen} />
               <Stack.Screen name="ARScanner" component={ARScannerScreen} />
               <Stack.Screen name="Chatbot" component={ChatbotScreen} />
+              <Stack.Screen name="Upsell" component={UpsellScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </CurrencyProvider>

@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ActionSheetIOS, Platform, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, Modal, FlatList, Platform } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -7,7 +7,8 @@ import { useLanguage } from '../context/LanguageContext';
 export default function SettingsScreen() {
     const { isDarkMode, toggleTheme, colors } = useTheme();
     const { language, changeLanguage, t } = useLanguage();
-    const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
+    const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+    const [languageModalVisible, setLanguageModalVisible] = useState(false);
 
     const languages = [
         { code: 'en', name: 'English' },
@@ -17,28 +18,9 @@ export default function SettingsScreen() {
         { code: 'zh', name: 'Chinese' }
     ];
 
-    const handleLanguageSelect = () => {
-        if (Platform.OS === 'ios') {
-            ActionSheetIOS.showActionSheetWithOptions(
-                {
-                    options: [...languages.map(l => l.name), 'Cancel'],
-                    cancelButtonIndex: languages.length,
-                    title: 'Select Language'
-                },
-                (buttonIndex) => {
-                    if (buttonIndex < languages.length) {
-                        changeLanguage(languages[buttonIndex].code);
-                    }
-                }
-            );
-        } else {
-            const buttons = languages.map(l => ({
-                text: l.name,
-                onPress: () => changeLanguage(l.code)
-            }));
-            buttons.push({ text: 'Cancel', style: 'cancel' });
-            Alert.alert('Select Language', '', buttons);
-        }
+    const handleLanguageSelect = (langCode) => {
+        changeLanguage(langCode);
+        setLanguageModalVisible(false);
     };
 
     const currentLangName = languages.find(l => l.code === language)?.name || 'English';
@@ -96,7 +78,7 @@ export default function SettingsScreen() {
 
                 <TouchableOpacity
                     style={[styles.settingRow, { backgroundColor: colors.card, borderColor: colors.border }]}
-                    onPress={handleLanguageSelect}
+                    onPress={() => setLanguageModalVisible(true)}
                     activeOpacity={0.7}
                 >
                     <View style={styles.settingInfo}>
@@ -111,6 +93,50 @@ export default function SettingsScreen() {
                     <Feather name="chevron-right" size={20} color={colors.textSecondary} />
                 </TouchableOpacity>
             </View>
+
+            {/* Language Selection Modal */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={languageModalVisible}
+                onRequestClose={() => setLanguageModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+                        <View style={styles.modalHeader}>
+                            <Text style={[styles.modalTitle, { color: colors.text }]}>Select Language</Text>
+                            <TouchableOpacity onPress={() => setLanguageModalVisible(false)} style={styles.modalCloseButton}>
+                                <Feather name="x" size={24} color={colors.textSecondary} />
+                            </TouchableOpacity>
+                        </View>
+                        <FlatList
+                            data={languages}
+                            keyExtractor={item => item.code}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={[
+                                        styles.languageOption,
+                                        { borderBottomColor: colors.border },
+                                        language === item.code && { backgroundColor: `${colors.primary}15` }
+                                    ]}
+                                    onPress={() => handleLanguageSelect(item.code)}
+                                >
+                                    <Text style={[
+                                        styles.languageOptionText,
+                                        { color: colors.text },
+                                        language === item.code && { color: colors.primary, fontWeight: 'bold' }
+                                    ]}>
+                                        {item.name}
+                                    </Text>
+                                    {language === item.code && (
+                                        <Feather name="check" size={20} color={colors.primary} />
+                                    )}
+                                </TouchableOpacity>
+                            )}
+                        />
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -172,5 +198,41 @@ const styles = StyleSheet.create({
     },
     settingDesc: {
         fontSize: 12,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        padding: 24,
+        maxHeight: '70%',
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    modalCloseButton: {
+        padding: 4,
+    },
+    languageOption: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 16,
+        paddingHorizontal: 12,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderRadius: 8,
+    },
+    languageOptionText: {
+        fontSize: 16,
     }
 });

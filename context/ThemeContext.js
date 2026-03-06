@@ -37,14 +37,14 @@ export const ThemeProvider = ({ children }) => {
         isDarkMode,
         toggleTheme,
         colors: {
-            background: isDarkMode ? '#0A0A0A' : '#F5F5F5',
+            background: isDarkMode ? '#0A0A0A' : '#F9FAFB', // Professional off-white
             card: isDarkMode ? '#1A1A1A' : '#FFFFFF',
-            text: isDarkMode ? '#FFFFFF' : '#111111',
-            textSecondary: isDarkMode ? '#AAAAAA' : '#666666',
+            text: isDarkMode ? '#FFFFFF' : '#111827', // Slate-900 for robust contrast
+            textSecondary: isDarkMode ? '#AAAAAA' : '#6B7280', // Slate-500
             primary: '#E5A93C', // Gold remains consistent
-            border: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-            cardOverlay: isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.8)',
-            iconBg: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+            border: isDarkMode ? 'rgba(255,255,255,0.1)' : '#E5E7EB', // Slate-200 border
+            cardOverlay: isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.85)',
+            iconBg: isDarkMode ? 'rgba(255,255,255,0.1)' : '#F3F4F6', // Slate-100
         }
     };
 

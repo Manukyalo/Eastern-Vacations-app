@@ -127,7 +127,10 @@ export default function GroupBookingScreen({ route, navigation }) {
             </ScrollView>
 
             <View style={[styles.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
-                <TouchableOpacity style={styles.confirmButton}>
+                <TouchableOpacity
+                    style={styles.confirmButton}
+                    onPress={() => navigation.navigate('Upsell', { item, groupDetails: { adults, children, total } })}
+                >
                     <Text style={styles.confirmButtonText}>Continue to Payment</Text>
                     <Feather name="arrow-right" size={20} color="#111" style={{ marginLeft: 8 }} />
                 </TouchableOpacity>

@@ -5,6 +5,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { PACKAGES } from '../data/packages';
 import { useCurrency } from '../context/CurrencyContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 import { AntDesign, Feather } from '@expo/vector-icons';
 import axios from 'axios';
@@ -50,7 +51,7 @@ const PackageCard = ({ item, index, isAdded, onToggleWishlist, formatPrice }) =>
                                 style={styles.button}
                                 onPress={() => navigation.navigate('PackageDetails', { item })}
                             >
-                                <Text style={styles.buttonText}>View Details</Text>
+                                <Text style={styles.buttonText}>{item.viewDetailsLabel || 'View Details'}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -64,6 +65,7 @@ export default function PackagesScreen({ navigation }) {
     const [wishlistIds, setWishlistIds] = useState([]);
     const { currency, setCurrency, availableCurrencies, formatPrice } = useCurrency();
     const { colors } = useTheme();
+    const { t } = useLanguage();
 
     const fetchWishlist = async () => {
         try {
@@ -106,8 +108,8 @@ export default function PackagesScreen({ navigation }) {
             <View style={styles.header}>
                 <View style={styles.headerTop}>
                     <View>
-                        <Text style={[styles.headerTitle, { color: colors.text }]}>Kenya Tours</Text>
-                        <Text style={[styles.headerSubtitle, { color: colors.primary }]}>Exclusive safari experiences</Text>
+                        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('discover')}</Text>
+                        <Text style={[styles.headerSubtitle, { color: colors.primary }]}>{t('exclusiveExperiences') || 'Exclusive safari experiences'}</Text>
                     </View>
                     <View style={styles.headerActionRow}>
                         <TouchableOpacity
@@ -148,7 +150,7 @@ export default function PackagesScreen({ navigation }) {
                 keyExtractor={(item) => item.id}
                 renderItem={({ item, index }) => (
                     <PackageCard
-                        item={item}
+                        item={{ ...item, viewDetailsLabel: t('viewDetails') || 'View Details' }}
                         index={index}
                         isAdded={wishlistIds.includes(item.id)}
                         onToggleWishlist={toggleWishlist}

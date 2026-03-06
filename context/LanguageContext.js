@@ -9,50 +9,60 @@ const translations = {
         settings: "Settings",
         language: "Language",
         darkMode: "Dark Mode",
-        discover: "Discover",
+        discover: "Kenya Tours",
         wishlist: "Wishlist",
         premium: "Premium",
-        planner: "Planner"
+        planner: "Planner",
+        exclusiveExperiences: "Exclusive safari experiences",
+        viewDetails: "View Details"
     },
     'sw': {
         hello: "Jambo",
         settings: "Mipangilio",
         language: "Lugha",
         darkMode: "Hali ya Giza",
-        discover: "Gundua",
+        discover: "Ziara za Kenya",
         wishlist: "Orodha ya Matamanio",
         premium: "Pirimiamu",
-        planner: "Mratibu"
+        planner: "Mratibu",
+        exclusiveExperiences: "Uzoefu maalum wa safari",
+        viewDetails: "Tazama Maelezo"
     },
     'fr': {
         hello: "Bonjour",
         settings: "Paramètres",
         language: "Langue",
         darkMode: "Mode Sombre",
-        discover: "Découvrir",
+        discover: "Tours au Kenya",
         wishlist: "Liste de Souhaits",
         premium: "Premium",
-        planner: "Planificateur"
+        planner: "Planificateur",
+        exclusiveExperiences: "Expériences de safari exclusives",
+        viewDetails: "Voir les Détails"
     },
     'de': {
         hello: "Hallo",
         settings: "Einstellungen",
         language: "Sprache",
         darkMode: "Dunkler Modus",
-        discover: "Entdecken",
+        discover: "Kenia Touren",
         wishlist: "Wunschzettel",
         premium: "Premium",
-        planner: "Planer" // Corrected from default Planificateur to proper German Planer
+        planner: "Planer",
+        exclusiveExperiences: "Exklusive Safari-Erlebnisse",
+        viewDetails: "Details Anzeigen"
     },
     'zh': {
         hello: "你好",
         settings: "设置",
         language: "语言",
         darkMode: "夜间模式",
-        discover: "发现",
+        discover: "肯尼亚之旅",
         wishlist: "心愿单",
         premium: "高级",
-        planner: "计划员"
+        planner: "计划员",
+        exclusiveExperiences: "独家野生动物园体验",
+        viewDetails: "查看详情"
     }
 };
 

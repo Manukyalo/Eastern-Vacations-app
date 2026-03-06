@@ -26,7 +26,7 @@ export default function FloatingChatIcon() {
                 onPress={() => navigation.navigate('Chatbot')}
                 activeOpacity={0.8}
             >
-                <MaterialCommunityIcons name="robot-outline" size={32} color="#111" />
+                <MaterialCommunityIcons name="crown-outline" size={32} color="#111" />
             </TouchableOpacity>
         </Animated.View>
     );
