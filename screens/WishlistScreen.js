@@ -119,13 +119,6 @@ export default function WishlistScreen() {
                     showsVerticalScrollIndicator={false}
                 />
             )}
-
-            <TouchableOpacity
-                style={styles.fab}
-                onPress={() => navigation.navigate('Discover')}
-            >
-                <Feather name="plus" size={32} color="#111" />
-            </TouchableOpacity>
         </View>
     );
 }
@@ -261,21 +254,5 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         letterSpacing: 0.5,
-    },
-    fab: {
-        position: 'absolute',
-        bottom: 30,
-        right: 30,
-        width: 64,
-        height: 64,
-        borderRadius: 32,
-        backgroundColor: '#E5A93C',
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#E5A93C',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.5,
-        shadowRadius: 10,
-        elevation: 10,
     },
 });

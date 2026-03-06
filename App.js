@@ -64,7 +64,7 @@ function MainTabs() {
           options={{
             title: t('wishlist') || 'Wishlist',
             tabBarIcon: ({ color, size }) => (
-              <AntDesign name="hearto" size={size} color={color} />
+              <Feather name="star" size={size} color={color} />
             )
           }}
         />
@@ -74,7 +74,7 @@ function MainTabs() {
           options={{
             title: t('premium') || 'Premium',
             tabBarIcon: ({ color, size }) => (
-              <Feather name="star" size={size} color={color} />
+              <MaterialCommunityIcons name="crown-outline" size={size} color={color} />
             )
           }}
         />
@@ -93,7 +93,7 @@ function MainTabs() {
           component={AIPlannerScreen}
           options={{
             tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="robot-outline" size={size} color={color} />
+              <MaterialCommunityIcons name="robot" size={size} color={color} />
             )
           }}
         />

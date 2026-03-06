@@ -35,7 +35,7 @@ const PackageCard = ({ item, index, isAdded, onToggleWishlist, formatPrice }) =>
                             style={styles.wishlistIcon}
                             onPress={() => onToggleWishlist(item.id, isAdded)}
                         >
-                            <AntDesign name={isAdded ? "heart" : "hearto"} size={24} color={isAdded ? "#E5A93C" : "#fff"} />
+                            <AntDesign name={isAdded ? "star" : "staro"} size={24} color={isAdded ? "#E5A93C" : "#fff"} />
                         </TouchableOpacity>
                     </View>
 
